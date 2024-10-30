@@ -39,94 +39,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
       return;
     }
 
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        final productProvider = context.read<ProductProvider>();
-        final selectedProductsList = productProvider.products
-            .where((product) => _selectedProducts.contains(product.id))
-            .toList();
+    final productProvider = context.read<ProductProvider>();
+    final selectedProductsList = productProvider.products
+        .where((product) => _selectedProducts.contains(product.id))
+        .toList();
+    final totalAmount = _calculateTotal(productProvider.products);
 
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Selected Products',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: selectedProductsList.length,
-                  itemBuilder: (context, index) {
-                    final product = selectedProductsList[index];
-                    return ListTile(
-                      dense: true,
-                      title: Text(
-                        product.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: Text(
-                        '\$${product.price.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Total:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '\$${_calculateTotal(productProvider.products).toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Implement checkout logic here
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Proceeding to checkout...')),
-                    );
-                  },
-                  child: const Text('Proceed to Checkout'),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CheckOutScreen(
+          selectedProducts: selectedProductsList,
+          totalAmount: totalAmount,
+        ),
+      ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
